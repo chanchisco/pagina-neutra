@@ -1,0 +1,12 @@
+import { brandConfig } from './brand-config.js';
+const sdk=brandConfig.demo?null:await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+const demo=brandConfig.demo?await import('./demo-store.js'):null;
+export const doc=(db,...parts)=>sdk?sdk.doc(db,...parts):({path:parts.length?parts.join('/'):`${db.path}/${crypto.randomUUID()}`});
+export const collection=(db,...parts)=>sdk?sdk.collection(db,...parts):({path:parts.join('/')});
+export const orderBy=(...args)=>sdk?sdk.orderBy(...args):({method:'orderBy',args});
+export const query=(ref,...constraints)=>sdk?sdk.query(ref,...constraints):({...ref,constraints});
+export const getDoc=ref=>sdk?sdk.getDoc(ref):demo.demoDoc(ref);
+export const getDocs=ref=>sdk?sdk.getDocs(ref):demo.demoDocs(ref);
+export const onSnapshot=(ref,next,error)=>{if(sdk)return sdk.onSnapshot(ref,next,error);const update=()=>getDoc(ref).then(next,error);queueMicrotask(update);window.addEventListener('demo-changed',update);return()=>window.removeEventListener('demo-changed',update);};
+export const setDoc=(...args)=>sdk?sdk.setDoc(...args):Promise.reject(Error('Usa el editor del panel para registrar el cambio.'));
+export const addDoc=setDoc,updateDoc=setDoc,deleteDoc=setDoc;

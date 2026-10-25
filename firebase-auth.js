@@ -1,0 +1,15 @@
+import { brandConfig } from './brand-config.js';
+const sdk=brandConfig.demo?null:await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+const demo=brandConfig.demo?await import('./demo-store.js'):null;
+export const onAuthStateChanged=(auth,fn)=>sdk?sdk.onAuthStateChanged(auth,fn):demo.observeAuth(auth,fn);
+export const signOut=auth=>sdk?sdk.signOut(auth):demo.leaveDemo();
+export const signInWithEmailAndPassword=(auth,email,password)=>sdk?sdk.signInWithEmailAndPassword(auth,email,password):(email==='admin@example.test'||email==='editor@example.test'?demo.enterDemo(email.startsWith('editor')?'contenido':'completo'):Promise.reject(Error('Utiliza el botón Entrar a la demostración.')));
+const unavailable=()=>{throw Error('Función de seguridad disponible al conectar un Firebase propio; la demostración no envía correos ni configura autenticadores.');};
+export const sendPasswordResetEmail=(...args)=>sdk?sdk.sendPasswordResetEmail(...args):unavailable();
+export const multiFactor=user=>sdk?sdk.multiFactor(user):({enrolledFactors:[],getSession:unavailable});
+export const getMultiFactorResolver=(...args)=>sdk?sdk.getMultiFactorResolver(...args):unavailable();
+export const EmailAuthProvider=sdk?.EmailAuthProvider||{credential:unavailable};
+export const TotpMultiFactorGenerator=sdk?.TotpMultiFactorGenerator||{FACTOR_ID:'totp'};
+export const reauthenticateWithCredential=(...args)=>sdk?sdk.reauthenticateWithCredential(...args):unavailable();
+export const sendEmailVerification=(...args)=>sdk?sdk.sendEmailVerification(...args):unavailable();
+export const reload=(...args)=>sdk?sdk.reload(...args):Promise.resolve();
